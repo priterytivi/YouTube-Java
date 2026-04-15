@@ -1,7 +1,7 @@
 const express = require('express');
 const { execSync } = require('child_process');
 const app = express();
-const port = 80;
+const port = process.env.PORT || 3000; // Render sẽ tự điền PORT vào đây
 
 app.set('view engine', 'ejs'); // Sử dụng EJS để render HTML dễ dàng
 
@@ -9,7 +9,7 @@ app.set('view engine', 'ejs'); // Sử dụng EJS để render HTML dễ dàng
 app.get('/', (req, res) => {
     const q = req.query.q || "music";
     try {
-        // Lấy 10 video, chỉ lấy thông tin cơ bản để load nhanh
+        
         const cmd = `yt-dlp "ytsearch10:${q}" --dump-json --flat-playlist`;
         const stdout = execSync(cmd, { maxBuffer: 1024 * 1024 * 5 }).toString();
         const videos = stdout.trim().split('\n').map(line => JSON.parse(line));
