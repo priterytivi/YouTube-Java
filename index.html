@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Java - YouTube for Java phones</title>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; background: #e5e5e5; margin: 0; padding: 0; }
+        header { background: #ff0000; padding: 15px; color: white; text-align: center; position: sticky; top: 0; z-index: 100; }
+        .search-box { margin: 10px; display: flex; }
+        input { flex: 1; padding: 12px; border: none; border-radius: 5px 0 0 5px; }
+        button#search-btn { padding: 12px; border: none; background: #333; color: #fff; border-radius: 0 5px 5px 0; }
+        
+        #video-list { padding: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+        .video-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
+        .video-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+        .video-info { padding: 8px; font-size: 13px; color: #333; height: 40px; overflow: hidden; }
+
+        /* Modal hiển thị tùy chọn */
+        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #fff; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; text-align: center; }
+        .modal-content img { width: 100%; border-radius: 5px; margin-bottom: 15px; }
+        .btn-group { display: flex; gap: 10px; flex-direction: column; }
+        .btn-play { padding: 15px; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; text-decoration: none; }
+        .video-btn { background: #ff0000; }
+        .audio-btn { background: #28a745; }
+        .close-btn { background: #666; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="search-box">
+        <input type="text" id="query" placeholder="Search...">
+        <button id="search-btn" onclick="search()">Tìm</button>
+    </div>
+</header>
+
+<div id="video-list">
+    </div>
+
+<div id="modal">
+    <div class="modal-content">
+        <img id="modal-thumb" src="" alt="thumbnail">
+        <h3 id="modal-title" style="font-size: 16px;"></h3>
+        <div class="btn-group">
+            <a id="btn-video" class="btn-play video-btn">Video</a>
+            <a id="btn-audio" class="btn-play audio-btn">Audio</a>
+            <button class="btn-play close-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function search() {
+        const q = document.getElementById('query').value;
+        const list = document.getElementById('video-list');
+        list.innerHTML = "Loading...";
+
+        fetch(`/api/search?q=${encodeURIComponent(q)}`)
+            .then(res => res.json())
+            .then(data => {
+                list.innerHTML = "";
+                data.forEach(v => {
+                    const card = document.createElement('div');
+                    card.className = 'video-card';
+                    card.onclick = () => openModal(v.id, v.title, v.thumbnails[0].url);
+                    card.innerHTML = `
+                        <img src="${v.thumbnails[0].url}">
+                        <div class="video-info">${v.title}</div>
+                    `;
+                    list.appendChild(card);
+                });
+            });
+    }
+
+    function openModal(id, title, thumb) {
+        document.getElementById('modal-thumb').src = thumb;
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal').style.display = 'flex';
+
+        // Lấy link video
+        fetch(`/api/get-link?id=${id}&type=video`).then(res => res.json())
+            .then(data => document.getElementById('btn-video').href = data.url);
+
+        // Lấy link audio
+        fetch(`/api/get-link?id=${id}&type=audio`).then(res => res.json())
+            .then(data => document.getElementById('btn-audio').href = data.url);
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+        document.getElementById('btn-video').href = "#";
+        document.getElementById('btn-audio').href = "#";
+    }
+
+    // Tự động tải video đề xuất khi vào trang
+    window.onload = search;
+</script>
+
+</body>
+</html>
+
