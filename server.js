@@ -3,7 +3,7 @@ const { execSync } = require('child_process');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Giao diện tối giản cho điện thoại cũ
+// Giao diện tối ưu cho điện thoại Java
 const header = `
 <!DOCTYPE html>
 <html>
@@ -24,7 +24,7 @@ const header = `
 app.get('/', (req, res) => {
     const q = req.query.q || "music";
     try {
-        // Lệnh lấy danh sách 10 video từ YouTube
+        // Lấy 10 video, thêm cơ chế chống chặn SSL
         const cmd = `./yt-dlp "ytsearch10:${q}" --dump-json --flat-playlist --no-check-certificates`;
         const stdout = execSync(cmd, { maxBuffer: 1024 * 1024 * 10 }).toString();
         const videos = stdout.trim().split('\n').map(line => JSON.parse(line));
@@ -46,21 +46,26 @@ app.get('/', (req, res) => {
                 </tr>`;
         });
 
-        html += `</table></body></html>`;
+        html += `</table><div style="text-align:center; font-size:10px; color:#aaa; margin-top:10px;">ONNA Tube v2.0</div></body></html>`;
         res.send(html);
     } catch (e) {
-        console.error(e);
-        res.send(header + `<p style="text-align:center; color:red;">Đang tải dữ liệu từ YouTube, vui lòng đợi 30 giây rồi nhấn tải lại trang...</p></body></html>`);
+        res.send(header + `<p style="text-align:center; color:red;">Server đang bận hoặc từ khóa không hợp lệ. Vui lòng thử lại!</p></body></html>`);
     }
 });
 
-// Trang chi tiết để lấy link 3GP và Audio
+// Trang chi tiết lấy link stream
 app.get('/v/:id', (req, res) => {
     const id = req.params.id;
     try {
-        // Trích xuất link trực tiếp 3GP (144p) và Audio (M4A)
-        const linkVideo = execSync(`./yt-dlp -g -f "17/160/worst" --no-check-certificates https://www.youtube.com/watch?v=${id}`).toString().trim();
-        const linkAudio = execSync(`./yt-dlp -g -f "140/bestaudio" --no-check-certificates https://www.youtube.com/watch?v=${id}`).toString().trim();
+        // Giả lập User Agent của Nokia để YouTube ưu tiên nhả link 3GP
+        const nokiaUA = "Mozilla/5.0 (SymbianOS/9.4; Series60/5.0 NokiaN97-1/20.0.019; Profile/MIDP-2.1 Configuration/CLDC-1.1) AppleWebKit/525 (KHTML, like Gecko) BrowserNG/7.1.18124";
+        
+        // Lệnh lấy link: Ưu tiên itag 17 (3GP), nếu không có lấy bản thấp nhất (worst)
+        const cmdVideo = `./yt-dlp -g -f "17/worst" --user-agent "${nokiaUA}" --no-check-certificates https://www.youtube.com/watch?v=${id}`;
+        const cmdAudio = `./yt-dlp -g -f "140/bestaudio" --no-check-certificates https://www.youtube.com/watch?v=${id}`;
+
+        const linkVideo = execSync(cmdVideo).toString().trim();
+        const linkAudio = execSync(cmdAudio).toString().trim();
 
         res.send(`
             <!DOCTYPE html>
@@ -70,19 +75,19 @@ app.get('/v/:id', (req, res) => {
                 <div style="text-align:left; margin-bottom:15px;"><a href="/" style="text-decoration:none; color:#ff0000; font-weight:bold;">&lt; TRỞ LẠI</a></div>
                 <img src="https://img.youtube.com/vi/${id}/0.jpg" width="100%" style="border-radius:10px; border:1px solid #ddd;"><br>
                 <div style="margin:20px 0;">
-                    <a href="${linkVideo}" style="display:block; background:#ff0000; color:#fff; padding:15px; text-align:center; text-decoration:none; font-weight:bold; border-radius:8px; margin-bottom:15px;">XEM VIDEO (3GP)</a>
-                    <a href="${linkAudio}" style="display:block; background:#28a745; color:#fff; padding:15px; text-align:center; text-decoration:none; font-weight:bold; border-radius:8px;">NGHE NHẠC (AUDIO)</a>
+                    <p style="font-size:12px; color:#666;">Chọn định dạng phù hợp cho máy của bạn:</p>
+                    <a href="${linkVideo}" style="display:block; background:#ff0000; color:#fff; padding:15px; text-align:center; text-decoration:none; font-weight:bold; border-radius:8px; margin-bottom:15px;">XEM VIDEO (3GP / 144p)</a>
+                    <a href="${linkAudio}" style="display:block; background:#28a745; color:#fff; padding:15px; text-align:center; text-decoration:none; font-weight:bold; border-radius:8px;">NGHE NHẠC (M4A)</a>
                 </div>
-                <p style="font-size:12px; color:#888;">Ninh Bình Media - 2026</p>
+                <p style="font-size:10px; color:#888;">Lưu ý: Một số video đời mới có thể không hỗ trợ 3GP gốc.</p>
             </body>
             </html>`);
     } catch (e) {
         console.error(e);
-        res.send(header + `<p style="text-align:center; color:red;">Lỗi: Không thể lấy link stream cho video này!</p></body></html>`);
+        res.send(header + `<p style="text-align:center; color:red;">Lỗi: YouTube đã chặn yêu cầu hoặc video không có định dạng hỗ trợ.</p><div style="text-align:center;"><a href="/">Quay lại</a></div></body></html>`);
     }
 });
 
-// Khởi chạy server
 app.listen(port, () => {
-    console.log("Server dang chay tai cong: " + port);
+    console.log("The server is running at the port: " + port);
 });
