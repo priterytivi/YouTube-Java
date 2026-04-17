@@ -13,9 +13,9 @@ const header = `
     <title>ONNA Tube</title>
 </head>
 <body style="font-family:sans-serif; background:#fff; margin:0; padding:5px;">
-    <div style="background:#ff0000; padding:10px; color:#fff; font-weight:bold; text-align:center; border-radius:5px;">NINH BÌNH MEDIA</div>
+    <div style="background:#ff0000; padding:10px; color:#fff; font-weight:bold; text-align:center; border-radius:5px;">ONNA Tube</div>
     <form action="/" method="get" style="margin:10px 0; text-align:center;">
-        <input type="text" name="q" placeholder="Tìm video..." style="width:60%; padding:5px;">
+        <input type="text" name="q" placeholder="Search video..." style="width:60%; padding:5px;">
         <input type="submit" value="Tìm" style="padding:5px; background:#333; color:#fff; border:none; border-radius:3px;">
     </form>
 `;
@@ -46,10 +46,10 @@ app.get('/', (req, res) => {
                 </tr>`;
         });
 
-        html += `</table><div style="text-align:center; font-size:10px; color:#aaa; margin-top:10px;">ONNA Tube v2.0</div></body></html>`;
+        html += `</table><div style="text-align:center; font-size:10px; color:#aaa; margin-top:10px;">Make by Pritery - ONNA Network</div></body></html>`;
         res.send(html);
     } catch (e) {
-        res.send(header + `<p style="text-align:center; color:red;">Server đang bận hoặc từ khóa không hợp lệ. Vui lòng thử lại!</p></body></html>`);
+        res.send(header + `<p style="text-align:center; color:red;">The server is busy or the keyword is invalid. Please try again!</p></body></html>`);
     }
 });
 
