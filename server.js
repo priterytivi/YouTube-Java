@@ -10,7 +10,7 @@ const header = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NINH BÌNH MEDIA</title>
+    <title>ONNA Tube</title>
 </head>
 <body style="font-family:sans-serif; background:#fff; margin:0; padding:5px;">
     <div style="background:#ff0000; padding:10px; color:#fff; font-weight:bold; text-align:center; border-radius:5px;">NINH BÌNH MEDIA</div>
@@ -49,7 +49,7 @@ app.get('/', (req, res) => {
         html += `</table><div style="text-align:center; font-size:10px; color:#aaa; margin-top:10px;">ONNA Tube v2.0</div></body></html>`;
         res.send(html);
     } catch (e) {
-        res.send(header + `<p style="text-align:center; color:red;">Server đang bận hoặc từ khóa không hợp lệ. Vui lòng thử lại!</p></body></html>`);
+        res.send(header + `<p style="text-align:center; color:red;">The server is busy or the keyword is invalid. Please try again!</p></body></html>`);
     }
 });
 
@@ -75,16 +75,16 @@ app.get('/v/:id', (req, res) => {
                 <div style="text-align:left; margin-bottom:15px;"><a href="/" style="text-decoration:none; color:#ff0000; font-weight:bold;">&lt; TRỞ LẠI</a></div>
                 <img src="https://img.youtube.com/vi/${id}/0.jpg" width="100%" style="border-radius:10px; border:1px solid #ddd;"><br>
                 <div style="margin:20px 0;">
-                    <p style="font-size:12px; color:#666;">Chọn định dạng phù hợp cho máy của bạn:</p>
-                    <a href="${linkVideo}" style="display:block; background:#ff0000; color:#fff; padding:15px; text-align:center; text-decoration:none; font-weight:bold; border-radius:8px; margin-bottom:15px;">XEM VIDEO (3GP / 144p)</a>
-                    <a href="${linkAudio}" style="display:block; background:#28a745; color:#fff; padding:15px; text-align:center; text-decoration:none; font-weight:bold; border-radius:8px;">NGHE NHẠC (M4A)</a>
+                    <p style="font-size:12px; color:#666;">Choose the appropriate format for your device.:</p>
+                    <a href="${linkVideo}" style="display:block; background:#ff0000; color:#fff; padding:15px; text-align:center; text-decoration:none; font-weight:bold; border-radius:8px; margin-bottom:15px;">VIDEO (3GP / 144p)</a>
+                    <a href="${linkAudio}" style="display:block; background:#28a745; color:#fff; padding:15px; text-align:center; text-decoration:none; font-weight:bold; border-radius:8px;">AUDIO (M4A)</a>
                 </div>
-                <p style="font-size:10px; color:#888;">Lưu ý: Một số video đời mới có thể không hỗ trợ 3GP gốc.</p>
+                <p style="font-size:10px; color:#888;">Note: Some newer videos may not support native 3GP.</p>
             </body>
             </html>`);
     } catch (e) {
         console.error(e);
-        res.send(header + `<p style="text-align:center; color:red;">Lỗi: YouTube đã chặn yêu cầu hoặc video không có định dạng hỗ trợ.</p><div style="text-align:center;"><a href="/">Quay lại</a></div></body></html>`);
+        res.send(header + `<p style="text-align:center; color:red;">Error: YouTube has blocked the request, or the video does not have a supported format.</p><div style="text-align:center;"><a href="/">Quay lại</a></div></body></html>`);
     }
 });
 
